@@ -1,0 +1,81 @@
+# https://taskfile.dev
+version: '3'
+
+vars:
+  BIN: bin/lametric-mydatadiy-demo
+
+interval: 500ms # default interval for watch tasks is 5s
+
+tasks:
+  default:
+    desc: Default task; test and coverage
+    cmds:
+      - task: coverage
+    watch: true
+
+  test:
+    desc: Run all tests
+    cmds:
+      - task: test-unit
+      - task: test-integration
+
+  test-unit:
+    desc: Run tests
+    cmds:
+      - go test -v ./...
+    silent: true
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+
+  test-integration:
+    desc: Run integration tests
+    cmds:
+      - go test -v -tags=integration ./...
+    silent: true
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+
+  coverage:
+    desc: Generate coverage report and print it to the console
+    cmds:
+      - go test -v -coverprofile=coverage.out -coverpkg=. ./...
+      - go tool cover -func=coverage.out
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - coverage.out
+
+  html-coverage:
+    desc: Generate HTML coverage report and open it in the browser
+    cmds:
+      - task: coverage      
+      - go tool cover -html=coverage.out
+
+  build:
+    desc: Build the binary
+    cmds:
+      - go build -o {{.BIN}} cmd/web/main.go
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BIN}}"
+
+  run:
+    desc: Run the binary
+    cmds:
+      - "{{.BIN}}"
+    deps: [build]
+
+  cleanup:
+    desc: Cleanup the project
+    cmds:
+      - rm -rf {{.BIN}} coverage.out .task
+    silent: true
