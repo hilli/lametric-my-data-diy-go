@@ -8,7 +8,7 @@ interval: 500ms # default interval for watch tasks is 5s
 
 tasks:
   default:
-    desc: Default task; test and coverage
+    desc: Default task; Run tests, monitoring continuously for changes
     cmds:
       - task: coverage
     watch: true
@@ -24,6 +24,7 @@ tasks:
     cmds:
       - go test -v ./...
     silent: true
+    internal: true
     sources:
       - "**/*.go"
       - go.mod
@@ -34,6 +35,7 @@ tasks:
     cmds:
       - go test -v -tags=integration ./...
     silent: true
+    internal: true    
     sources:
       - "**/*.go"
       - go.mod
