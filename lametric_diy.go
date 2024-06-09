@@ -6,6 +6,7 @@ package lametricmydatadiygo
 import (
 	"encoding/json"
 	"net/http"
+	"sync"
 )
 
 // https://help.lametric.com/support/solutions/articles/6000225467-my-data-diy
@@ -44,6 +45,7 @@ type GoalData struct {
 
 // MyDataFrames is a struct that holds a slice of MyDataFrame
 type MyDataFrames struct {
+	sync.Mutex
 	Frames []MyDataFrame `json:"frames"`
 }
 
@@ -59,7 +61,9 @@ func (m *MyDataFrames) ToJson() ([]byte, error) {
 //	frames := lametric.MyDataFrames{}
 //	frames.AddFrame(lametric.MyDataFrame{Text: "Hello World!"})
 func (m *MyDataFrames) AddFrame(frame MyDataFrame) *MyDataFrames {
+	m.Lock()
 	m.Frames = append(m.Frames, frame)
+	m.Unlock()
 	return m
 }
 
@@ -73,7 +77,9 @@ func (m *MyDataFrames) RemoveFrame(index int) *MyDataFrames {
 	if index < 0 || index >= len(m.Frames) {
 		return m
 	}
+	m.Lock()
 	m.Frames = append(m.Frames[:index], m.Frames[index+1:]...)
+	m.Unlock()
 	return m
 }
 
@@ -86,7 +92,7 @@ func (m *MyDataFrames) RemoveFrame(index int) *MyDataFrames {
 // Output:
 //
 //	Frames: {"frames":[{"text":"Hello World!"}]}
-func (m MyDataFrames) String() string {
+func (m *MyDataFrames) String() string {
 	jsonData, _ := m.ToJson()
 	return string(jsonData)
 }

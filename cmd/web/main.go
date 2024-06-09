@@ -37,7 +37,7 @@ func main() {
 		ChartData: []int{10, 20, 5, 40, 20, 15, 20, 34},
 	}
 
-	frames := lametric.MyDataFrames{
+	frames := &lametric.MyDataFrames{
 		Frames: []lametric.MyDataFrame{frame1, savings1},
 	}
 
