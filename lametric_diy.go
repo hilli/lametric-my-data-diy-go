@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"sync"
+	"time"
 )
 
 // https://help.lametric.com/support/solutions/articles/6000225467-my-data-diy
@@ -29,6 +30,9 @@ type MyDataFrame struct {
 
 	// ChartData is the data for the chart widget - A list of integers
 	ChartData []int `json:"chartData,omitempty"`
+
+	// expireTime is the time when the frame should be removed
+	expireTime int64
 }
 
 // GoalData is a struct that holds the data for the goal widget
@@ -110,4 +114,29 @@ func (m *MyDataFrames) HttpFunc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(jsonData)
+}
+
+func NewMyDataTextFrame(text, icon string, opts ...MyDataFrameOptions) MyDataFrame {
+	return MyDataFrame{
+		Text: text,
+		Icon: icon,
+	}
+}
+
+type MyDataFrameOptions func(*MyDataFrame) error
+
+// MyDataFrameOptions is a struct that holds the options for the MyDataFrame
+type MyDataFrameCustomizer interface {
+	Customize(*MyDataFrame) error
+}
+
+func (opt MyDataFrameOptions) Customize(m *MyDataFrame) error {
+	return opt(m)
+}
+
+func WithExpiryInSeconds(seconds int) MyDataFrameCustomizer {
+	return func(m *MyDataFrame) error {
+		m.expireTime = time.Now().Add(time.Duration(seconds) * time.Second).Unix()
+		return nil
+	}
 }

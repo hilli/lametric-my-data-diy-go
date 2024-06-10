@@ -142,3 +142,13 @@ func Test_MyDataDIY(t *testing.T) {
 		}
 	})
 }
+
+func Test_Expiring(t *testing.T) {
+	t.Run("Test Expiring frames", func(t *testing.T) {
+		// frame := lametric.NewMyDataTextFrame("Hello World!", "64", )
+
+		// if frame.Expire != 10 {
+		// 	t.Errorf("Expected 10 but got %d", frame.Expire)
+		// }
+	})
+}
