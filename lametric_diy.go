@@ -115,7 +115,7 @@ func (m *MyDataFrames) HttpFunc(w http.ResponseWriter, r *http.Request) {
 }
 
 // Push will push the frames to the LaMetric device at the given URL
-func (m *MyDataFrames) Push(url string, token string) error {
+func (m *MyDataFrames) Push(url string, api_key string) error {
 	jsonData, err := m.ToJson()
 	if err != nil {
 		return err
@@ -125,7 +125,7 @@ func (m *MyDataFrames) Push(url string, token string) error {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth("dev", token)
+	req.SetBasicAuth("dev", api_key)
 
 	res, err := http.DefaultClient.Do(req)
 
