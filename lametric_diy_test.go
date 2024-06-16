@@ -1,6 +1,7 @@
 package lametricmydatadiygo_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -139,6 +140,50 @@ func Test_MyDataDIY(t *testing.T) {
 		}
 		if resp.Header.Get("Content-Type") != "application/json" {
 			t.Errorf("Expected 'application/json' but got %s", resp.Header.Get("Content-Type"))
+		}
+	})
+}
+
+func Test_Push(t *testing.T) {
+	t.Run("Test Push", func(t *testing.T) {
+		frame := lametric.MyDataFrame{
+			Text: "Hello World!",
+			Icon: "64",
+		}
+		frames := lametric.MyDataFrames{}
+		frames.AddFrame(frame)
+
+		token := "77charactersofrandomness"
+		basicauth := "Basic ZGV2Ojc3Y2hhcmFjdGVyc29mcmFuZG9tbmVzcw=="
+
+		ts := httptest.NewServer(http.Handler(http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				if r.Header.Get("Authorization") != basicauth {
+					t.Errorf("Expected '%s' but got %s", basicauth, r.Header.Get("Authorization"))
+				}
+				w.WriteHeader(http.StatusOK)
+				if r.Method != http.MethodPost {
+					t.Errorf("Expected POST but got %s", r.Method)
+				}
+				if r.Body == nil {
+					t.Errorf("Expected a body but got nil")
+				}
+				body, err := io.ReadAll(r.Body)
+				if err != nil {
+					t.Errorf("Expected to be able to read the body but got an error %v", err)
+				}
+				if string(body) != `{"frames":[{"text":"Hello World!","icon":"64"}]}` {
+					t.Errorf("Expected a body %s, but got 'adasd'", r.Body)
+				}
+			},
+		)))
+		defer ts.Close()
+
+		err := frames.Push(ts.URL, token)
+
+		// err := frames.Push(url, token)
+		if err != nil {
+			t.Errorf("Expected nil but got %v", err)
 		}
 	})
 }

@@ -4,7 +4,9 @@
 package lametricmydatadiygo
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
 )
@@ -110,4 +112,28 @@ func (m *MyDataFrames) HttpFunc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(jsonData)
+}
+
+// Push will push the frames to the LaMetric device at the given URL
+func (m *MyDataFrames) Push(url string, token string) error {
+	jsonData, err := m.ToJson()
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("POST", url, bytes.NewReader(jsonData))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth("dev", token)
+
+	res, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("expected 200 but got %d while pushing frames to %s", res.StatusCode, url)
+	}
+	return err
 }

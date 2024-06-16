@@ -7,6 +7,7 @@
 - Create some "Frames"
 - Add the handler to your webserver.
 - Point the LaMetric device to your services as a HTTP pull endpoint
+- Or use `MyDataFrames.Push(url, token)` to push data to the DIY app for more instant updates
 - Bob's your uncle (That is: Enjoy your data on the LaMetric display)
 
 For a code example see the included webserver in [cmd/web/main.go](https://github.com/hilli/lametric-my-data-diy-go/blob/main/cmd/web/main.go)
